@@ -1,5 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Motores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            text-align: center;
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+            transition: background-color 0.3s;
+            margin: 5px;
+        }
+
+        .button.off {
+            background-color: #f44336;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        .parameter {
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input[type="number"] {
+            width: 48%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin: 0 1%;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        .range-inputs {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .range-inputs input {
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            .button {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+
+            #status {
+                font-size: 14px;
+            }
+
+            input[type="number"] {
+                width: 45%;
+                padding: 8px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Monitoramento de Motores</h1>
+    <button id="toggleEnvio" class="button">Ativar envio de dados</button>
+    <p id="status">Envio de dados desativado</p>
+    <h3>link do backend: https://backend-clu7.onrender.com/inserir_dados_motores</h3>
+
+    <!-- Faixas de Temperatura -->
+    <div class="parameter">
+        <label for="tempMin">Temperatura (°C)</label>
+        <div class="range-inputs">
+            <input type="number" id="tempMin" placeholder="Mín." value="30">
+            <input type="number" id="tempMax" placeholder="Máx." value="60">
+        </div>
+    </div>
+
+    <!-- Faixas de Frequência -->
+    <div class="parameter">
+        <label for="freqMin">Frequência (Hz)</label>
+        <div class="range-inputs">
+            <input type="number" id="freqMin" placeholder="Mín." value="45">
+            <input type="number" id="freqMax" placeholder="Máx." value="55">
+        </div>
+    </div>
+
+    <!-- Faixas de Corrente -->
+    <div class="parameter">
+        <label for="correnteMin">Corrente (A)</label>
+        <div class="range-inputs">
+            <input type="number" id="correnteMin" placeholder="Mín." value="3" step="0.01">
+            <input type="number" id="correnteMax" placeholder="Máx." value="5" step="0.01">
+        </div>
+    </div>
+
+    <!-- Faixas de Pressão -->
+    <div class="parameter">
+        <label for="pressaoMin">Pressão (Bar)</label>
+        <div class="range-inputs">
+            <input type="number" id="pressaoMin" placeholder="Mín." value="1" step="0.01">
+            <input type="number" id="pressaoMax" placeholder="Máx." value="1.5" step="0.01">
+        </div>
+    </div>
+
+    <!-- Intervalo de envio -->
+    <div class="parameter">
+        <label for="intervaloInput">Intervalo de envio (segundos)</label>
+        <input type="number" id="intervaloInput" value="300" min="1" style="width: 100%; padding: 10px;">
+    </div>
+    <button id="setIntervalo" class="button">Alterar Intervalo</button>
+</div>
+
 <script>
-    // Função para capturar os valores dos inputs e enviar ao backend
+    const toggleEnvio = document.getElementById('toggleEnvio');
+    const status = document.getElementById('status');
+    const intervaloInput = document.getElementById('intervaloInput');
+    const setIntervalo = document.getElementById('setIntervalo');
+
+    const tempMin = document.getElementById('tempMin');
+    const tempMax = document.getElementById('tempMax');
+    const freqMin = document.getElementById('freqMin');
+    const freqMax = document.getElementById('freqMax');
+    const correnteMin = document.getElementById('correnteMin');
+    const correnteMax = document.getElementById('correnteMax');
+    const pressaoMin = document.getElementById('pressaoMin');
+    const pressaoMax = document.getElementById('pressaoMax');
+
+    let envioAtivo = false;
+
+    toggleEnvio.addEventListener('click', function() {
+        if (!envioAtivo) {
+            fetch('/iniciar_envio', { method: 'POST' })
+                .then(response => response.text())
+                .then(message => {
+                    status.textContent = 'Envio de dados ativado';
+                    toggleEnvio.textContent = 'Desativar envio de dados';
+                    toggleEnvio.classList.add('off');
+                });
+        } else {
+            fetch('/parar_envio', { method: 'POST' })
+                .then(response => response.text())
+                .then(message => {
+                    status.textContent = 'Envio de dados desativado';
+                    toggleEnvio.textContent = 'Ativar envio de dados';
+                    toggleEnvio.classList.remove('off');
+                });
+        }
+        envioAtivo = !envioAtivo;
+    });
+
+    setIntervalo.addEventListener('click', function() {
+        const intervalo = parseInt(intervaloInput.value);
+        fetch('/set_intervalo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ intervalo })
+        })
+        .then(response => response.text())
+        .then(message => {
+            status.textContent = message;
+        });
+    });
+
+    // Função para enviar os dados ajustados
     async function enviarDadosAjustados() {
         const dados = {
             dados_sensores_motores: {
@@ -60,3 +276,6 @@
     // Chamando a função de envio periodicamente
     setInterval(enviarDadosAjustados, intervaloAtual); // Usa o intervalo definido pelo usuário
 </script>
+
+</body>
+</html>
