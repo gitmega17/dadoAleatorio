@@ -3,6 +3,9 @@ const { iniciarEnvio, pararEnvio } = require('./monitoramento');
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware para permitir o uso do JSON no corpo das requisições
+app.use(express.json());
+
 // Servir o front-end estático da pasta public
 app.use(express.static('public'));
 
