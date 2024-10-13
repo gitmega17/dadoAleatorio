@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento de Motores</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #121212;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .button {
+            padding: 15px 30px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .button.off {
+            background-color: #f44336;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        /* Modo responsivo */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 18px;
+            }
+
+            .button {
+                font-size: 16px;
+                padding: 10px 20px;
+            }
+
+            #status {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Monitoramento de Motores</h1>
+    <button id="toggleEnvio" class="button">Ativar envio de dados</button>
+    <p id="status">Envio de dados desativado</p>
+    <h3>link do backend: https://backend-clu7.onrender.com/inserir_dados_motores</h3>
+</div>
+
+<script>
+    const toggleEnvio = document.getElementById('toggleEnvio');
+    const status = document.getElementById('status');
+    let envioAtivo = false;
+
+    toggleEnvio.addEventListener('click', function() {
+        if (!envioAtivo) {
+            // Ativar envio
+            fetch('/iniciar_envio', { method: 'POST' });
+            toggleEnvio.textContent = 'Desativar envio de dados';
+            toggleEnvio.classList.add('off');
+            status.textContent = 'Envio de dados ativado';
+        } else {
+            // Desativar envio
+            fetch('/parar_envio', { method: 'POST' });
+            toggleEnvio.textContent = 'Ativar envio de dados';
+            toggleEnvio.classList.remove('off');
+            status.textContent = 'Envio de dados desativado';
+        }
+        envioAtivo = !envioAtivo;
+    });
+</script>
+
+</body>
+</html>
