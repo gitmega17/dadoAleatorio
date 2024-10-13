@@ -4,29 +4,8 @@ const url = 'https://backend-clu7.onrender.com/inserir_dados_motores';
 let intervaloEnvio;
 let intervaloAtual = 300000; // Padrão: 5 minutos em milissegundos
 
-function gerarDadosReais() {
-    return {
-        dados_sensores_motores: {
-            Motor01: {
-                Temperatura: Math.floor(Math.random() * (60 - 30 + 1)) + 30,
-                Frequencia: Math.floor(Math.random() * (55 - 45 + 1)) + 45,
-                Corrente: (Math.random() * (5 - 3) + 3).toFixed(2),
-                Vibracao: "ok",
-                Pressao: (Math.random() * (1.5 - 1) + 1).toFixed(2)
-            },
-            Motor02: {
-                Temperatura: Math.floor(Math.random() * (60 - 30 + 1)) + 30,
-                Frequencia: Math.floor(Math.random() * (55 - 45 + 1)) + 45,
-                Corrente: (Math.random() * (5 - 3) + 3).toFixed(2),
-                Vibracao: "ok",
-                Pressao: (Math.random() * (1.5 - 1) + 1).toFixed(2)
-            }
-        }
-    };
-}
-
-async function enviarDados() {
-    const dados = gerarDadosReais();
+// Função para enviar dados passados pelo front-end (não mais gerando aleatórios)
+async function enviarDados(dados) {
     console.log(`Enviando dados para: ${url}`);
     try {
         const response = await axios.post(url, dados);
@@ -38,25 +17,27 @@ async function enviarDados() {
     }
 }
 
-function iniciarEnvio() {
+// Função para iniciar envio periódico
+function iniciarEnvio(dados) {
     intervaloEnvio = setInterval(async () => {
-        const resultado = await enviarDados();
+        const resultado = await enviarDados(dados); // Envia os dados recebidos do front-end
         console.log(resultado);
     }, intervaloAtual);
     console.log('Envio de dados ativado.');
 }
 
+// Função para parar o envio de dados
 function pararEnvio() {
     clearInterval(intervaloEnvio);
     console.log('Envio de dados desativado.');
 }
 
-// Nova função para alterar o intervalo de envio
-function setIntervaloEnvio(segundos) {
+// Função para alterar o intervalo de envio
+function setIntervaloEnvio(segundos, dados) {
     intervaloAtual = segundos * 1000; // Converte para milissegundos
     if (intervaloEnvio) {
         pararEnvio(); // Para o envio atual
-        iniciarEnvio(); // Inicia novamente com o novo intervalo
+        iniciarEnvio(dados); // Inicia novamente com o novo intervalo e dados
     }
 }
 
