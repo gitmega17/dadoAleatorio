@@ -1,2 +1,34 @@
-node_modules
+# Ignore node_modules folder (contém dependências do Node.js)
+node_modules/
+
+# Ignore log files gerados pelo sistema
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Ignore arquivos de configuração do ambiente
 .env
+
+# Ignore diretórios e arquivos temporários
+temp/
+tmp/
+
+# Ignore o cache do npm
+.cache/
+
+# Ignore o cache do build do frontend, caso necessário
+public/build/
+
+# Ignore arquivos de lock do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ignore arquivos relacionados a IDEs e editores
+.vscode/
+.idea/
+*.swp
+
+# Ignore pastas de build que possam ser geradas
+dist/
+build/
+
