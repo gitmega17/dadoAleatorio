@@ -1,9 +1,9 @@
 const axios = require('axios');
 
-// URL de envio
 const url = 'https://backend-clu7.onrender.com/inserir_dados_motores';
+let intervaloEnvio;
+let intervaloAtual = 300000; // Padrão: 5 minutos em milissegundos
 
-// Função para gerar dados realistas dos motores
 function gerarDadosReais() {
     return {
         dados_sensores_motores: {
@@ -25,30 +25,39 @@ function gerarDadosReais() {
     };
 }
 
-// Função para enviar dados
 async function enviarDados() {
     const dados = gerarDadosReais();
     console.log(`Enviando dados para: ${url}`);
     try {
         const response = await axios.post(url, dados);
         console.log('Dados enviados com sucesso:', response.data);
+        return 'Dados enviados com sucesso!';
     } catch (error) {
         console.error('Erro ao enviar dados:', error.response ? error.response.data : error.message);
+        return 'Erro ao enviar dados!';
     }
 }
 
-let intervaloEnvio;
-
-// Função para iniciar o envio de dados
 function iniciarEnvio() {
-    intervaloEnvio = setInterval(enviarDados, 300000); // A cada 5 minutos
+    intervaloEnvio = setInterval(async () => {
+        const resultado = await enviarDados();
+        console.log(resultado);
+    }, intervaloAtual);
     console.log('Envio de dados ativado.');
 }
 
-// Função para parar o envio de dados
 function pararEnvio() {
     clearInterval(intervaloEnvio);
     console.log('Envio de dados desativado.');
 }
 
-module.exports = { iniciarEnvio, pararEnvio };
+// Nova função para alterar o intervalo de envio
+function setIntervaloEnvio(segundos) {
+    intervaloAtual = segundos * 1000; // Converte para milissegundos
+    if (intervaloEnvio) {
+        pararEnvio(); // Para o envio atual
+        iniciarEnvio(); // Inicia novamente com o novo intervalo
+    }
+}
+
+module.exports = { iniciarEnvio, pararEnvio, setIntervaloEnvio };

@@ -70,28 +70,59 @@
     <button id="toggleEnvio" class="button">Ativar envio de dados</button>
     <p id="status">Envio de dados desativado</p>
     <h3>link do backend: https://backend-clu7.onrender.com/inserir_dados_motores</h3>
+    
+    <div>
+        <label for="intervaloInput">Intervalo de envio (segundos):</label>
+        <input type="number" id="intervaloInput" value="300" min="1" />
+        <button id="setIntervalo" class="button">Alterar Intervalo</button>
+    </div>
 </div>
 
 <script>
     const toggleEnvio = document.getElementById('toggleEnvio');
     const status = document.getElementById('status');
+    const intervaloInput = document.getElementById('intervaloInput');
+    const setIntervalo = document.getElementById('setIntervalo');
     let envioAtivo = false;
 
     toggleEnvio.addEventListener('click', function() {
         if (!envioAtivo) {
-            // Ativar envio
-            fetch('/iniciar_envio', { method: 'POST' });
-            toggleEnvio.textContent = 'Desativar envio de dados';
-            toggleEnvio.classList.add('off');
-            status.textContent = 'Envio de dados ativado';
+            fetch('/iniciar_envio', { method: 'POST' })
+                .then(response => {
+                    return response.text();
+                })
+                .then(message => {
+                    status.textContent = 'Envio de dados ativado';
+                    toggleEnvio.textContent = 'Desativar envio de dados';
+                    toggleEnvio.classList.add('off');
+                });
         } else {
-            // Desativar envio
-            fetch('/parar_envio', { method: 'POST' });
-            toggleEnvio.textContent = 'Ativar envio de dados';
-            toggleEnvio.classList.remove('off');
-            status.textContent = 'Envio de dados desativado';
+            fetch('/parar_envio', { method: 'POST' })
+                .then(response => {
+                    return response.text();
+                })
+                .then(message => {
+                    status.textContent = 'Envio de dados desativado';
+                    toggleEnvio.textContent = 'Ativar envio de dados';
+                    toggleEnvio.classList.remove('off');
+                });
         }
         envioAtivo = !envioAtivo;
+    });
+
+    setIntervalo.addEventListener('click', function() {
+        const intervalo = parseInt(intervaloInput.value);
+        fetch('/set_intervalo', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ intervalo })
+        })
+        .then(response => response.text())
+        .then(message => {
+            status.textContent = message; // Atualiza o status com a resposta do servidor
+        });
     });
 </script>
 
