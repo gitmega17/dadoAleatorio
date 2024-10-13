@@ -178,6 +178,7 @@
     const pressaoMax = document.getElementById('pressaoMax');
 
     let envioAtivo = false;
+    let intervaloAtual = parseInt(intervaloInput.value);
 
     toggleEnvio.addEventListener('click', function() {
         if (!envioAtivo) {
@@ -187,6 +188,7 @@
                     status.textContent = 'Envio de dados ativado';
                     toggleEnvio.textContent = 'Desativar envio de dados';
                     toggleEnvio.classList.add('off');
+                    enviarDadosAjustados(); // Enviar dados ajustados ao ativar
                 });
         } else {
             fetch('/parar_envio', { method: 'POST' })
@@ -212,6 +214,7 @@
         .then(response => response.text())
         .then(message => {
             status.textContent = message;
+            intervaloAtual = intervalo; // Atualiza o intervalo
         });
     });
 
@@ -258,24 +261,20 @@
             }
         };
 
-        try {
-            const response = await fetch('https://backend-clu7.onrender.com/inserir_dados_motores', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dados)
-            });
-            const result = await response.json();
-            console.log('Dados enviados:', result);
-        } catch (error) {
-            console.error('Erro ao enviar dados:', error);
+        // Envia os dados ao servidor
+        await fetch('https://backend-clu7.onrender.com/inserir_dados_motores', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(dados)
+        });
+
+        // Chama a função novamente após o intervalo especificado
+        if (envioAtivo) {
+            setTimeout(enviarDadosAjustados, intervaloAtual * 1000);
         }
     }
-
-    // Chamando a função de envio periodicamente
-    setInterval(enviarDadosAjustados, intervaloAtual); // Usa o intervalo definido pelo usuário
 </script>
-
 </body>
 </html>

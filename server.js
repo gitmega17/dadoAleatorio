@@ -4,11 +4,15 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
-app.use(express.json()); // Adicione esta linha para permitir que o Express trate JSON
+app.use(express.json()); // Permite que o Express trate JSON
 
 // Rota para ativar o envio de dados
 app.post('/iniciar_envio', (req, res) => {
-    iniciarEnvio();
+    const dados = req.body; // Recebe os dados do front-end
+    if (!dados || Object.keys(dados).length === 0) {
+        return res.status(400).send('Dados não fornecidos.');
+    }
+    iniciarEnvio(dados); // Passa os dados para a função de iniciar envio
     res.send('Envio de dados ativado.');
 });
 
@@ -20,14 +24,17 @@ app.post('/parar_envio', (req, res) => {
 
 // Rota para alterar o intervalo de envio
 app.post('/set_intervalo', (req, res) => {
-    const { intervalo } = req.body; // Recebe o intervalo em segundos
-    setIntervaloEnvio(intervalo);
+    const { intervalo, dados } = req.body; // Recebe o intervalo em segundos e os dados
+    if (typeof intervalo !== 'number' || intervalo <= 0) {
+        return res.status(400).send('Intervalo inválido. Deve ser um número positivo.');
+    }
+    setIntervaloEnvio(intervalo, dados); // Passa os dados para a função de alterar intervalo
     res.send(`Intervalo de envio alterado para ${intervalo} segundos.`);
 });
 
 // Rota para verificar o status do envio
 app.get('/status_envio', (req, res) => {
-    const status = intervaloEnvio ? 'Ativo' : 'Desativado';
+    const status = (typeof intervaloEnvio !== 'undefined') ? 'Ativo' : 'Desativado';
     res.send(`Envio de dados está: ${status}`);
 });
 
